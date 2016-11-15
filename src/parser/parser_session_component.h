@@ -1,7 +1,7 @@
 #pragma once
 
 #include <base/signal.h>
-#include <dom0/parser_session.h>
+#include <parser/parser_session.h>
 #include <os/attached_ram_dataspace.h>
 #include <os/server.h>
 #include <root/component.h>

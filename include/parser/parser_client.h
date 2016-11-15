@@ -2,7 +2,7 @@
 
 #include <base/printf.h>
 #include <base/rpc_client.h>
-#include <dom0/parser_session.h>
+#include <parser/parser_session.h>
 
 struct Parser_session_client : Genode::Rpc_client<Parser_session>
 {
