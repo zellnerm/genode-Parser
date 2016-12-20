@@ -54,7 +54,7 @@ Genode::Ram_dataspace_capability Parser_session_component::live_data()
 					
 		}
 		Genode::Trace::SCHEDULER_info scheduler_info = trace.scheduler_info(subjects[0]);
-		xml.attribute("Idle time", std::to_string(scheduler_info.idle().value/1000).c_str());
+		xml.attribute("Idle time", std::to_string(scheduler_info.idle0().value/1000).c_str());
 		xml.attribute("RAM avail in MB", std::to_string(init.ram_quota()/1048576).c_str());
 		xml.attribute("CPU 0 online", std::to_string(scheduler_info.core0_is_online()).c_str());
 		xml.attribute("CPU 1 online", std::to_string(scheduler_info.core1_is_online()).c_str());
