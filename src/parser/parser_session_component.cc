@@ -42,6 +42,7 @@ Genode::Ram_dataspace_capability Parser_session_component::live_data()
 						xml.attribute("foc_id", std::to_string(scheduler_info.foc_id()).c_str());
 						xml.attribute("execution-time", std::to_string(info.execution_time().value/1000).c_str());
 			       			xml.attribute("priority", std::to_string(info.prio()).c_str());
+						xml.attribute("core", std::to_string(info.affinity().xpos()).c_str());
 						xml.attribute("session", info.session_label().string());
 						xml.attribute("thread", info.thread_name().string());
 			      	 		xml.attribute("ram_quota", std::to_string(ram_info.ram_quota()/1024).c_str());
@@ -54,7 +55,10 @@ Genode::Ram_dataspace_capability Parser_session_component::live_data()
 					
 		}
 		Genode::Trace::SCHEDULER_info scheduler_info = trace.scheduler_info(subjects[0]);
-		xml.attribute("Idle time", std::to_string(scheduler_info.idle0().value/1000).c_str());
+		xml.attribute("Idle0", std::to_string(scheduler_info.idle0().value/1000).c_str());
+		xml.attribute("Idle1", std::to_string(scheduler_info.idle1().value/1000).c_str());
+		xml.attribute("Idle2", std::to_string(scheduler_info.idle2().value/1000).c_str());
+		xml.attribute("Idle3", std::to_string(scheduler_info.idle3().value/1000).c_str());
 		xml.attribute("RAM avail in MB", std::to_string(init.ram_quota()/1048576).c_str());
 		xml.attribute("CPU 0 online", std::to_string(scheduler_info.core0_is_online()).c_str());
 		xml.attribute("CPU 1 online", std::to_string(scheduler_info.core1_is_online()).c_str());
