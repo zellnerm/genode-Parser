@@ -8,6 +8,8 @@
 #include <timer_session/connection.h>
 #include <util/string.h>
 #include <cap_session/connection.h>
+#include "mon_manager/mon_manager_connection.h"
+#include "mon_manager/mon_manager.h"
 
 struct Parser_session_component : Genode::Rpc_object<Parser_session>
 {
@@ -27,6 +29,9 @@ protected:
 
 	Genode::Attached_ram_dataspace _profile_data;
 	Genode::Attached_ram_dataspace _live_data;
+
+	Mon_manager::Connection _mon_manager;
+	Genode::Ram_dataspace_capability mon_ds_cap;
 };
 
 struct Parser_root_component : Genode::Root_component<Parser_session_component>

@@ -24,50 +24,35 @@ Parser_session_component::~Parser_session_component()
 
 Genode::Ram_dataspace_capability Parser_session_component::live_data()
 {
-	static Timer::Connection timer;
-	static Genode::Trace::Connection trace(1024*4096, 64*4096, 0);
-	Genode::Trace::Subject_id subjects[32];
-	size_t num_subjects = trace.subjects(subjects, 32);
-	Genode::Trace::RAM_info init;
-	int timestamp=1000;
-
-	Genode::Xml_generator xml(_live_data.local_addr<char>(), _live_data.size(), "", [&]()
-	{
-		for (size_t i = 0; i < num_subjects; i++) {
-			Genode::Trace::CPU_info info = trace.cpu_info(subjects[i]);
-			Genode::Trace::RAM_info ram_info = trace.ram_info(subjects[i]);
-			Genode::Trace::SCHEDULER_info scheduler_info = trace.scheduler_info(subjects[i]);
-					if(Genode::strcmp(info.session_label().string(), "init")!=0) {
-			       			xml.attribute("id", std::to_string(info.id()).c_str());
-						xml.attribute("foc_id", std::to_string(scheduler_info.foc_id()).c_str());
-						xml.attribute("execution-time", std::to_string(info.execution_time().value/1000).c_str());
-			       			xml.attribute("priority", std::to_string(info.prio()).c_str());
-						xml.attribute("core", std::to_string(info.affinity().xpos()).c_str());
-						xml.attribute("session", info.session_label().string());
-						xml.attribute("thread", info.thread_name().string());
-			      	 		xml.attribute("ram_quota", std::to_string(ram_info.ram_quota()/1024).c_str());
-						xml.attribute("ram_used", std::to_string(ram_info.ram_used()/1024).c_str());
-						xml.attribute("", "\n");
-					}
-					if(Genode::strcmp(info.session_label().string(), "init")==0) {
-						init=ram_info;
-					}
-					
-		}
-		Genode::Trace::SCHEDULER_info scheduler_info = trace.scheduler_info(subjects[0]);
-		xml.attribute("Idle0", std::to_string(scheduler_info.idle0().value/1000).c_str());
-		xml.attribute("Idle1", std::to_string(scheduler_info.idle1().value/1000).c_str());
-		xml.attribute("Idle2", std::to_string(scheduler_info.idle2().value/1000).c_str());
-		xml.attribute("Idle3", std::to_string(scheduler_info.idle3().value/1000).c_str());
-		xml.attribute("RAM avail in MB", std::to_string(init.ram_quota()/1048576).c_str());
-		xml.attribute("CPU 0 online", std::to_string(scheduler_info.core0_is_online()).c_str());
-		xml.attribute("CPU 1 online", std::to_string(scheduler_info.core1_is_online()).c_str());
-		xml.attribute("CPU 2 online", std::to_string(scheduler_info.core2_is_online()).c_str());
-		xml.attribute("CPU 3 online", std::to_string(scheduler_info.core3_is_online()).c_str());
-		xml.attribute("Number of cores", std::to_string(scheduler_info.num_cores()).c_str());
-		xml.attribute("", "\n");
-	});
+	mon_ds_cap = Genode::env()->ram_session()->alloc(100*sizeof(Mon_manager::Monitoring_object));
+	Mon_manager::Monitoring_object *threads=Genode::env()->rm_session()->attach(mon_ds_cap);
+	_mon_manager.update_info(mon_ds_cap);
 	
+	Genode::Xml_generator xml(_live_data.local_addr<char>(), _live_data.size(), "live", [&]()
+	{
+		xml.node("task-descriptions", [&]()
+		{
+			for (int j = 0; j < 10; j++) {
+					for (size_t i = 0; i < 100; i++) {
+						xml.node("task", [&]()
+						{
+			       			xml.attribute("id", std::to_string(threads[i].id).c_str());
+						xml.attribute("foc_id", std::to_string(threads[i].foc_id).c_str());
+						xml.attribute("execution-time", std::to_string(threads[i].execution_time.value/1000).c_str());
+			       			xml.attribute("priority", std::to_string(threads[i].prio).c_str());
+						//xml.attribute("core", std::to_string(threads[i].affinity().xpos()).c_str());
+						xml.attribute("session", threads[i].session_label.string());
+						xml.attribute("thread", threads[i].thread_name.string());
+			      	 		xml.attribute("ram_quota", std::to_string(threads[i].ram_quota/1024).c_str());
+						xml.attribute("ram_used", std::to_string(threads[i].ram_used/1024).c_str());
+						});
+					}
+			Genode::printf("run %d\n",j);
+			_mon_manager.update_info(mon_ds_cap);
+			}
+		});
+	});
+	Genode::env()->ram_session()->free(mon_ds_cap);
 	return _live_data.cap();
 }
 
@@ -100,7 +85,7 @@ Genode::Ram_dataspace_capability Parser_session_component::profile_data()
 					xml.attribute("period", std::to_string(0).c_str());
 					xml.attribute("offset", std::to_string(0).c_str());
 					xml.attribute("quota", std::to_string(ram_info.ram_quota()).c_str());
-					xml.attribute("binary", info.thread_name().string());
+					xml.attribute("binary", ram_info.thread_name().string());
 				});
 			}
 		});
