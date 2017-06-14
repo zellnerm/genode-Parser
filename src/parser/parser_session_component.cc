@@ -26,6 +26,8 @@ Genode::Ram_dataspace_capability Parser_session_component::live_data()
 {
 	mon_ds_cap = Genode::env()->ram_session()->alloc(100*sizeof(Mon_manager::Monitoring_object));
 	Mon_manager::Monitoring_object *threads=Genode::env()->rm_session()->attach(mon_ds_cap);
+	dead_ds_cap = Genode::env()->ram_session()->alloc(256*sizeof(long long unsigned));
+	long long unsigned *rip=Genode::env()->rm_session()->attach(dead_ds_cap);
 	_mon_manager.update_info(mon_ds_cap);
 	
 	Genode::Xml_generator xml(_live_data.local_addr<char>(), _live_data.size(), "live", [&]()
