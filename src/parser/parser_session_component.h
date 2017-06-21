@@ -32,6 +32,7 @@ protected:
 
 	Mon_manager::Connection _mon_manager;
 	Genode::Ram_dataspace_capability mon_ds_cap;
+	Genode::Ram_dataspace_capability dead_ds_cap;
 };
 
 struct Parser_root_component : Genode::Root_component<Parser_session_component>
