@@ -2,7 +2,6 @@
 #include <timer_session/connection.h>
 #include <base/env.h>
 #include <base/printf.h>
-#include <base/process.h>
 #include <util/xml_node.h>
 #include <util/xml_generator.h>
 #include <string>
