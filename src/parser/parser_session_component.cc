@@ -29,32 +29,50 @@ Genode::Ram_dataspace_capability Parser_session_component::live_data()
 	dead_ds_cap = Genode::env()->ram_session()->alloc(256*sizeof(long long unsigned));
 	long long unsigned *rip=Genode::env()->rm_session()->attach(dead_ds_cap);
 	_mon_manager.update_info(mon_ds_cap);
-	
+
+
 	Genode::Xml_generator xml(_live_data.local_addr<char>(), _live_data.size(), "live", [&]()
 	{
 		xml.node("task-descriptions", [&]()
 		{
 			for (int j = 0; j < 1; j++) {
 					for (size_t i = 0; i < 100; i++) {
-						xml.node("task", [&]()
-						{
-			       			xml.attribute("id", std::to_string(threads[i].id).c_str());
-						xml.attribute("foc_id", std::to_string(threads[i].foc_id).c_str());
-						xml.attribute("execution-time", std::to_string(threads[i].execution_time.value/1000).c_str());
-			       			xml.attribute("priority", std::to_string(threads[i].prio).c_str());
-						xml.attribute("core", std::to_string(threads[i].affinity.xpos()).c_str());
-						xml.attribute("policy-id", std::to_string(threads[i].policy_id.id).c_str());
-						xml.attribute("state", std::to_string(threads[i].state).c_str());
-						xml.attribute("arrival-time", std::to_string(threads[i].arrival_time/1000).c_str());
-						xml.attribute("start-time", std::to_string(threads[i].start_time/1000).c_str());
-						xml.attribute("session", threads[i].session_label.string());
-						xml.attribute("thread", threads[i].thread_name.string());
-			      	 		xml.attribute("ram_quota", std::to_string(threads[i].ram_quota/1024).c_str());
-						xml.attribute("ram_used", std::to_string(threads[i].ram_used/1024).c_str());
-						});
+						//check auf threads[i].session_label.string() ob es mit "init -> taskloader"
+
+						std::string tp(threads[i].session_label.string());
+
+						if(tp.find("init -> taskloader")==0){
+							xml.node("task", [&]()
+							{
+							xml.attribute("id", std::to_string(threads[i].id).c_str());
+							xml.attribute("foc_id", std::to_string(threads[i].foc_id).c_str());
+							xml.attribute("execution-time", std::to_string(threads[i].execution_time.value/1000).c_str());
+							xml.attribute("priority", std::to_string(threads[i].prio).c_str());
+							xml.attribute("core", std::to_string(threads[i].affinity.xpos()).c_str());
+							xml.attribute("policy-id", std::to_string(threads[i].policy_id.id).c_str());
+							xml.attribute("state", std::to_string(threads[i].state).c_str());
+							xml.attribute("arrival-time", std::to_string(threads[i].arrival_time/1000).c_str());
+							xml.attribute("start-time", std::to_string(threads[i].start_time/1000).c_str());
+							xml.attribute("session", threads[i].session_label.string());
+							xml.attribute("thread", threads[i].thread_name.string());
+							xml.attribute("ram_quota", std::to_string(threads[i].ram_quota/1024).c_str());
+							xml.attribute("ram_used", std::to_string(threads[i].ram_used/1024).c_str());
+							});
+						}
 					}
 			//Genode::printf("run %d\n",j);
 			_mon_manager.update_info(mon_ds_cap);
+			}
+		});
+		xml.node("RIP_table", [&]()
+		{
+			for(int z=1;z<256;z++){
+				xml.node("dead_task", [&]()
+				{
+					xml.attribute("foc_id", rip[z]);
+					z++;
+					xml.attribute("time", rip[z]);
+				});
 			}
 		});
 	});
