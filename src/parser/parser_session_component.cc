@@ -29,9 +29,8 @@ Genode::Ram_dataspace_capability Parser_session_component::live_data()
 	dead_ds_cap = Genode::env()->ram_session()->alloc(256*sizeof(long long unsigned));
 	long long unsigned *rip=Genode::env()->rm_session()->attach(dead_ds_cap);
 	_mon_manager.update_info(mon_ds_cap);
-	_mon_manager.update_info(dead_ds_cap);
-
-
+	_mon_manager.update_dead(dead_ds_cap);
+	
 	Genode::Xml_generator xml(_live_data.local_addr<char>(), _live_data.size(), "live", [&]()
 	{
 		xml.node("task-descriptions", [&]()
@@ -116,6 +115,7 @@ Genode::Ram_dataspace_capability Parser_session_component::profile_data()
 		});
 	});
 	Genode::env()->ram_session()->free(mon_ds_cap);
+	Genode::env()->ram_session()->free(dead_ds_cap);
 	return _live_data.cap();
 
 
