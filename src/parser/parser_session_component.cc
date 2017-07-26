@@ -64,17 +64,18 @@ Genode::Ram_dataspace_capability Parser_session_component::live_data()
 			_mon_manager.update_info(mon_ds_cap);
 			}
 		});
-		xml.node("RIP_table", [&]()
-		{
-			for(int z=1;z<256;z++){
-				xml.node("dead_task", [&]()
-				{
-					xml.attribute("foc_id", rip[z]);
-					z++;
-					xml.attribute("time", rip[z]);
-				});
-			}
-		});
+	});
+
+	xml.node("RIP_table", [&]()
+	{
+		xml.attribute("RIP_table size", rip[0]);
+		for(unsigned int z=1;z<rip[0]*2+1;z++){
+			xml.node("dead_task", [&]()
+			{
+				xml.attribute("foc_id", rip[z++]);
+				xml.attribute("time", rip[z]);
+			});
+		}
 	});
 	Genode::env()->ram_session()->free(mon_ds_cap);
 	Genode::env()->ram_session()->free(dead_ds_cap);
