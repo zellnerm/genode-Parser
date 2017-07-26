@@ -29,6 +29,7 @@ Genode::Ram_dataspace_capability Parser_session_component::live_data()
 	dead_ds_cap = Genode::env()->ram_session()->alloc(256*sizeof(long long unsigned));
 	long long unsigned *rip=Genode::env()->rm_session()->attach(dead_ds_cap);
 	_mon_manager.update_info(mon_ds_cap);
+	_mon_manager.update_info(dead_ds_cap);
 
 
 	Genode::Xml_generator xml(_live_data.local_addr<char>(), _live_data.size(), "live", [&]()
@@ -36,12 +37,12 @@ Genode::Ram_dataspace_capability Parser_session_component::live_data()
 		xml.node("task-descriptions", [&]()
 		{
 			for (int j = 0; j < 1; j++) {
-					for (size_t i = 0; i < 100; i++) {
+					for (size_t i = 0; i < 150; i++) {
 						//check auf threads[i].session_label.string() ob es mit "init -> taskloader"
 
 						std::string tp(threads[i].session_label.string());
 
-						if(tp.find("init -> taskloader")==0){
+						if(tp.find("init -> taskloader")==0 && threads[i].state!=5){
 							xml.node("task", [&]()
 							{
 							xml.attribute("id", std::to_string(threads[i].id).c_str());
@@ -77,6 +78,7 @@ Genode::Ram_dataspace_capability Parser_session_component::live_data()
 		});
 	});
 	Genode::env()->ram_session()->free(mon_ds_cap);
+	Genode::env()->ram_session()->free(dead_ds_cap);
 	return _live_data.cap();
 }
 
