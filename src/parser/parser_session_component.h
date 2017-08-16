@@ -10,6 +10,9 @@
 #include <cap_session/connection.h>
 #include "mon_manager/mon_manager_connection.h"
 #include "mon_manager/mon_manager.h"
+#include <vector>
+
+
 
 struct Parser_session_component : Genode::Rpc_object<Parser_session>
 {
