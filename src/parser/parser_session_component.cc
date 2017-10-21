@@ -17,9 +17,7 @@ Parser_session_component::Parser_session_component(Server::Entrypoint& ep) :
 	_cap{},
 	_profile_data{Genode::env()->ram_session(), _profile_ds_size()},
 	_live_data{Genode::env()->ram_session(), _profile_ds_size()}
-{
-	killed_tasks.clear();
-}
+{}
 
 Parser_session_component::~Parser_session_component()
 {
@@ -57,6 +55,7 @@ Genode::Ram_dataspace_capability Parser_session_component::live_data()
 							xml.attribute("state", std::to_string(threads[i].state).c_str());
 							xml.attribute("arrival-time", std::to_string(threads[i].arrival_time/1000).c_str());
 							xml.attribute("start-time", std::to_string(threads[i].start_time/1000).c_str());
+							xml.attribute("exit-time", std::to_string(threads[i].exit_time/1000).c_str());
 							xml.attribute("session", threads[i].session_label.string());
 							xml.attribute("thread", threads[i].thread_name.string());
 							xml.attribute("ram_quota", std::to_string(threads[i].ram_quota/1024).c_str());
@@ -82,7 +81,6 @@ Genode::Ram_dataspace_capability Parser_session_component::live_data()
 		}
 	});
 
-	PINF("killed size %d", killed_tasks.size());
 	Genode::env()->ram_session()->free(mon_ds_cap);
 	Genode::env()->ram_session()->free(dead_ds_cap);
 	return _live_data.cap();
